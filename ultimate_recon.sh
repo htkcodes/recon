@@ -1,38 +1,5 @@
 #!/bin/bash
 
-while getopts ":d:" input;do
-        case "$input" in
-                d) domain=${OPTARG}
-                        ;;
-                esac
-        done
-if [ -z "$domain" ]     
-        then
-                echo "Please give a domain like \"-d domain.com\""
-                exit 1
-fi
-
-sublist3r -d $domain -v -o op.txt
-subfinder -d $domain -o op.txt  
-assetfinder --subs-only $domain | tee -a op.txt
-amass enum -passive -d $doamin | tee -a op.txt
-amass enum -active -d $domain -ip | tee -a amass_ips.txt
-cat amass_ips.txt | awk '{print $1}' | tee -a op.txt
-cat op.txt | sort -u | tee -a all.txt
-echo -e "######Starting Bruteforce######\n"
-altdns -i all.txt -o data_output -w ~/tools/recon/patterns.txt -r -s results_output.txt
-mv results_output.txt dns_op.txt
-cat dns_op.txt output.txt
-
-cat output.txt | sort -u | tee -a all.txt
-echo "Checking for alive subdomains"
-cat all.txt | httprobe | tee -a alive2.txt
-cat alive2.txt | sort -u | tee -a alive.txt
-
-~/tools/massdns/bin/massdns -r ~/tools/massdns/lists/resolvers.txt -q -t A -o S -w massdns.raw all.txt
-cat massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > massdns.txt
-cat *.txt | sort -V | uniq > $IP_PATH/final-ips.txt
-echo -e "${BLUE}[*] Check the list of IP addresses at $IP_PATH/final-ips.txt${RESET}"
 
 echo "Starting Nuclei"
 mkdir nuclei_op
